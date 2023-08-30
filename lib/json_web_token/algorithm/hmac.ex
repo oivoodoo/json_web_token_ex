@@ -46,12 +46,14 @@ defmodule JsonWebToken.Algorithm.Hmac do
     weak_key(byte_size(key) * 8 < bits)
   end
 
-  defp weak_key(true), do: raise "Key size smaller than the hash output size"
+  defp weak_key(true), do: raise("Key size smaller than the hash output size")
   defp weak_key(_), do: :ok
 
-  if Code.ensure_loaded?(:crypto) and function_exported?(:crypto, :mac, 4) do
-    defp hmac(type, key, data), do: :crypto.mac(:hmac, type, key, data)
-  else
-    defp hmac(type, key, data), do: :crypto.hmac(type, key, data)
+  if Code.ensure_loaded?(:crypto) do
+    if function_exported?(:crypto, :mac, 4) do
+      defp hmac(type, key, data), do: :crypto.mac(:hmac, type, key, data)
+    else
+      defp hmac(type, key, data), do: :crypto.hmac(type, key, data)
+    end
   end
 end
